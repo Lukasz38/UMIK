@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">UMIK_final</string>
+    <string name="sensor_list_activity_bar_string">Sensor list</string>
+    <string name="empty_sensor_list_string">No sensors added yet</string>
+    <string name="add_new_sensor_string">Add new sensor</string>
+    <string name="sensor_id">Sensor ID</string>
+    <string name="sensor_name">Name</string>
+    <string name="sensor_location">Location</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="notification_title">Sensor id title</string>
+    <string name="notification_text">BLE data received</string>
+</resources>
