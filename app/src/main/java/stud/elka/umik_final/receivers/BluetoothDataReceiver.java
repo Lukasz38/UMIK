@@ -10,6 +10,7 @@ import android.util.Log;
 import java.util.List;
 
 import stud.elka.umik_final.R;
+import stud.elka.umik_final.communication.Data;
 
 /**
  * Created by Łukasz on 19.12.2017.
@@ -18,26 +19,27 @@ import stud.elka.umik_final.R;
 public class BluetoothDataReceiver extends BroadcastReceiver {
 
     private static final String TAG = "BluetoothDataReceiver";
-    private static final String NOTIFICATION_CHANNEL = "Notification_channel";
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "In onReceive method");
+        Log.d(TAG, "onReceive");
+
+
+        Data data = (Data) intent.getSerializableExtra("data");
+        if(data == null) {
+            Log.d(TAG, "Received data is null.");
+            return;
+        }
+        Log.d(TAG, "Data received: " + data);
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
                         .setSmallIcon(R.drawable.ic_electronics)
                         .setContentTitle(context.getText(R.string.notification_title))
-                        .setContentText(context.getText(R.string.notification_text));
+                        .setContentText(data + "");
         NotificationManager mNotificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        /*mNotificationManager.createNotificationChannel(new NotificationChannel(
-                NOTIFICATION_CHANNEL, NOTIFICATION_CHANNEL, NotificationManager.IMPORTANCE_DEFAULT));
-        List<NotificationChannel> nChannels = mNotificationManager.getNotificationChannels();
-        Log.d(TAG, "Size: " + nChannels.size());
-        for (NotificationChannel n : nChannels) {
-            Log.d(TAG, "Notification channel: " + n.getId());
-        }*/
+
         int mNotificationID = 1;
         mNotificationManager.notify(mNotificationID, mBuilder.build());
         Log.d(TAG, "Notification should have shown");

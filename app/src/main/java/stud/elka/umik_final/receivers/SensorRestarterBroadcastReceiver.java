@@ -9,11 +9,13 @@ import stud.elka.umik_final.services.SensorService;
 
 public class SensorRestarterBroadcastReceiver extends BroadcastReceiver {
 
+    private static final String TAG = "SensorRestarter";
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i(SensorRestarterBroadcastReceiver.class.getSimpleName(), "Service Stops! Oooooooooooooppppssssss!!!!");
-
+        Log.d(TAG, "SensorService stops!");
         context.startService(new Intent(context, SensorService.class));
+        Log.d(TAG, "SensorService restarted.");
     }
 
 }

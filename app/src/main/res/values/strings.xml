@@ -15,4 +15,8 @@
 
     <string name="notification_title">Sensor id title</string>
     <string name="notification_text">BLE data received</string>
+
+    <string name="sensor_list_title">Sensors</string>
+    <string name="submit_button">Submit</string>
+    <string name="mac_address">MAC address</string>
 </resources>

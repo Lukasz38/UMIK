@@ -9,11 +9,14 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
+import android.content.Intent;
 import android.os.SystemClock;
 import android.util.Log;
 
 import java.util.LinkedList;
 import java.util.UUID;
+
+import stud.elka.umik_final.receivers.BluetoothDataReceiver;
 
 /**
  * Klasa reprezentująca urządzenie zdalne, umożliwiająca połączenie i rozłączenie
@@ -22,20 +25,26 @@ import java.util.UUID;
  */
 
 public class RemoteDevice {
+
+    private static final UUID SERVICE_UUID = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb");
+    private static final UUID CHARACTERISTIC_UUID = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
+
+    // Adres modułu z inżynierki
+    private static final String DEVICE_ADDRESS = "88:4A:EA:8B:8B:CD";
+    private static final String TAG = "RemoteDevice";
+
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothGatt mBluetoothGatt;
     private BluetoothDevice mBluetoothDevice;
+    private BluetoothGatt mBluetoothGatt;
     private BluetoothGattService mBluetoothGattService;
     private BluetoothGattCharacteristic mBluetoothGattCharacteristic;
     private Context mContext;
     private LinkedList<Data> data;
-    //adres modułu z inzynierki
-    private static final String DEVICE_ADDRESS = "88:4A:EA:8B:8B:CD";
-    private static final UUID SERVICE_UUID = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb");
-    private static final UUID CHARACTERISTIC_UUID = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
     private boolean connected = false;
+
     private BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
+
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             switch(newState) {
@@ -53,6 +62,7 @@ public class RemoteDevice {
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            Log.d(TAG, "onServicesDiscovered");
             mBluetoothGattService = gatt.getService(SERVICE_UUID);
             mBluetoothGattCharacteristic = mBluetoothGattService.getCharacteristic(CHARACTERISTIC_UUID);
             mBluetoothGatt.setCharacteristicNotification(mBluetoothGattCharacteristic, true);
@@ -61,27 +71,28 @@ public class RemoteDevice {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicRead(gatt, characteristic, status);
-            Log.d("Remote device", "onCharacteristicRead");
+            Log.d(TAG, "onCharacteristicRead");
         }
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
-            Log.d("Remote device", "onCharacteristicWrite");
+            Log.d(TAG, "onCharacteristicWrite");
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
+            Log.d(TAG, "onCharacteristicChanged");
+
             data.add(new Data(characteristic.getStringValue(0)));
             if (data.size() >= 100) {
                 data.removeFirst();
             }
-            //TODO send intent
-            /*Intent broadcastIntent = new Intent(this, BluetoothDataReceiver.class);
-            sendBroadcast(broadcastIntent);
-            Log.d(TAG, "Broadcast intent sent");*/
-            Log.d("Remote device", "onCharacteristicChanged");
+
+            Intent dataIntent = new Intent("stud.elka.umik_final.PushNotification");
+            dataIntent.putExtra("data", getLastData());
+            mContext.sendBroadcast(dataIntent);
         }
     };
 
@@ -93,9 +104,9 @@ public class RemoteDevice {
      */
     public RemoteDevice(Context context, BluetoothManager manager, String macAddress) {
         mBluetoothManager = manager;
-        mContext = context;
         mBluetoothAdapter = manager.getAdapter();
         mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(macAddress);
+        mContext = context;
         data = new LinkedList<>();
     }
 
@@ -104,9 +115,12 @@ public class RemoteDevice {
      */
     public void connect() {
         if (mBluetoothGatt == null) {
-            while(!connected) {
-                mBluetoothGatt = mBluetoothDevice.connectGatt(mContext, false, gattCallback);
-                SystemClock.sleep(2000);
+            mBluetoothGatt = mBluetoothDevice.connectGatt(mContext, true, gattCallback);
+            SystemClock.sleep(2000);
+            if(connected) {
+                Log.d(TAG, "Device connected: " + mBluetoothDevice.getAddress());
+            } else {
+                Log.d(TAG, "Failed to connect to the device: " + mBluetoothDevice.getAddress());
             }
         }
     }
@@ -117,6 +131,16 @@ public class RemoteDevice {
     public void disconnect() {
         if (mBluetoothGatt != null) {
             mBluetoothGatt.disconnect();
+            Log.d(TAG, "Device disconnected: " + mBluetoothDevice.getAddress());
+        }
+    }
+
+    public boolean sendConfig(ConfigData data) {
+        if(connected) {
+            mBluetoothGattCharacteristic.setValue(data.createMessage());
+            return mBluetoothGatt.writeCharacteristic(mBluetoothGattCharacteristic);
+        } else {
+            return false;
         }
     }
 
