@@ -12,7 +12,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SensorList"/>
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
@@ -28,7 +27,7 @@
             android:exported="true"
             android:label="PushNotificationWhenDataReceived">
             <intent-filter>
-                <action android:name="stud.elka.umik_final.PushDataReceivedNotification"/>
+                <action android:name="stud.elka.umik_final.PushNotification"/>
             </intent-filter>
         </receiver>
 
