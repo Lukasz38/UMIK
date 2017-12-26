@@ -9,11 +9,12 @@ public class Sensor {
     private Long id;
     private String name;
     private String location;
+    private String macAddress;
 
-    public  Sensor(Long id, String name, String location) {
-        this.id = id;
+    public  Sensor(String name, String location, String macAddress) {
         this.name = name;
         this.location = location;
+        this.macAddress = macAddress;
     }
 
     public Long getId() {
@@ -34,6 +35,14 @@ public class Sensor {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public String getMacAddress() {
+        return macAddress;
+    }
+
+    public void setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
     }
 
     @Override

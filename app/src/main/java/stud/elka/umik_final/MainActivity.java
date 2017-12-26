@@ -1,21 +1,23 @@
 package stud.elka.umik_final;
 
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothManager;
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import stud.elka.umik_final.communication.RemoteDevice;
-import stud.elka.umik_final.receivers.BluetoothDataReceiver;
+import stud.elka.umik_final.communication.Data;
+import stud.elka.umik_final.services.SensorService;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -25,7 +27,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCleate");
         setContentView(R.layout.activity_main);
+
+        //Navigation
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -38,18 +43,13 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //Connect to sensor
-        //TODO move to service
-        String macAddress = "88:4A:EA:8B:8B:CD";
-        BluetoothManager mBluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
-        if(mBluetoothManager.getAdapter() == null) {
-            Log.d(TAG, "No bluetooth adapter found.");
-        } else {
-            RemoteDevice mRemoteDevice = new RemoteDevice(this, mBluetoothManager, macAddress);
-            mRemoteDevice.connect();
-            Log.d(TAG, "Connected to a remote device.");
+        //BLE service
+        Log.d(TAG, "Before service start");
+        Intent serviceIntent = new Intent(this, SensorService.class);
+        if(!isServiceRunning(SensorService.class)) {
+            Log.d(TAG, "Starting service");
+            startService(serviceIntent);
         }
-        //TODO start service here
     }
 
     @Override
@@ -84,20 +84,54 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    private void displaySelectedScreen(int id) {
+        Fragment fragment = null;
+
+        switch (id) {
+            case R.id.nav_devices:
+                fragment = new SensorList();
+                break;
+            case R.id.nav_config:
+                fragment = new ConfigFragment();
+                break;
+        }
+
+        if(fragment != null) {
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.content_main, fragment);
+            fragmentTransaction.commit();
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        displaySelectedScreen(id);
 
-        //TODO add fragments onClick
-        Log.d(TAG, "onNavigationItemSelected method called");
-        Intent broadcastIntent = new Intent(this, BluetoothDataReceiver.class);
-        sendBroadcast(broadcastIntent);
-        Log.d(TAG, "Broadcast intent sent");
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        Intent serviceIntent = new Intent(this, SensorService.class);
+        stopService(serviceIntent);
+        super.onDestroy();
+    }
+
+    private boolean isServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                Log.d ("isServiceRunning?", true + "");
+                return true;
+            }
+        }
+        Log.d ("isServiceRunning?", false + "");
+        return false;
     }
 }
