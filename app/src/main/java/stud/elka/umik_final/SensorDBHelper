@@ -1,0 +1,41 @@
+package stud.elka.umik_final;
+
+import android.database.sqlite.SQLiteOpenHelper;
+
+public class SensorDBHelper {
+
+    public static final int DATABASE_VERSION = 1;
+    public static final String DATABASE_NAME = "sensors.db";
+    pulbic static final String TABLE_SENSORS = "sensor";
+    
+    pulbic static final COLUMN_ID = _mac;
+    pulbic static final String COLUMN_LOCATION = location;
+    
+    public SensorDBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+            super(context, DATABASE_NAME, factory, DATABASE_VERSION);
+    }
+    
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        String query = "CREATE TABLE " + TABLE_SENSORS + "(" +
+                COLUMN_ID + " TEXT PRIMARY KEY NOT NULL " +
+                COLUMN_LOCATION + " TEXT" +
+                ");";
+        db.execSQL(query);        
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SENSORS);
+        onCreate(db);
+    }
+        
+    public void addSensor(Sensor sensor) {
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ID, sensor.getMacAddress);
+        values.put(COLUMN_LOCATION, sensor.getLocation);
+        SQLiteDatabase db = getWriteableDatabase();
+        db.insert(TABLE_SENSORS, null, values);
+        db.close();
+    }
+}
