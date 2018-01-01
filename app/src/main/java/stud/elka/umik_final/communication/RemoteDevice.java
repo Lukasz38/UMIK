@@ -16,6 +16,7 @@ import android.util.Log;
 import java.util.LinkedList;
 import java.util.UUID;
 
+import stud.elka.umik_final.db.DatabaseHelper;
 import stud.elka.umik_final.receivers.BluetoothDataReceiver;
 
 /**
@@ -85,7 +86,10 @@ public class RemoteDevice {
             super.onCharacteristicChanged(gatt, characteristic);
             Log.d(TAG, "onCharacteristicChanged");
 
-            data.add(new Data(characteristic.getStringValue(0)));
+            DatabaseHelper dbHelper = new DatabaseHelper(mContext);
+            long id = dbHelper.getSensor(mBluetoothDevice.getAddress()).getId();
+            dbHelper.close();
+            data.add(new Data(id, characteristic.getStringValue(0)));
             if (data.size() >= 100) {
                 data.removeFirst();
             }

@@ -6,20 +6,29 @@ package stud.elka.umik_final.entities;
 
 public class Sensor {
 
-    private Long id;
+    private long id;
+    private String macAddress;
     private String name;
     private String location;
-    private String macAddress;
 
-    public  Sensor(String name, String location, String macAddress) {
+    public Sensor(long id, String macAddress, String name, String location) {
+        this.id = id;
         this.name = name;
         this.location = location;
         this.macAddress = macAddress;
     }
 
-    public Long getId() {
+    public Sensor(String macAddress, String name, String location) {
+        this.name = name;
+        this.location = location;
+        this.macAddress = macAddress;
+    }
+
+    public long getId() {
         return id;
     }
+
+    public void setId(long id) { this.id = id; }
 
     public String getName() {
         return name;

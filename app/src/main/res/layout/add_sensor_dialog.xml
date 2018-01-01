@@ -16,14 +16,13 @@
         android:text="@string/add_new_sensor_string" />
 
     <EditText
-        android:id="@+id/id_text"
+        android:id="@+id/mac_address_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout_marginTop="6dp"
         android:ems="10"
-        android:inputType="number"
-        android:hint="@string/sensor_id"/>
+        android:inputType="textPersonName"
+        android:hint="@string/mac_address" />
 
     <EditText
         android:id="@+id/name_text"
@@ -43,17 +42,8 @@
         android:inputType="textPersonName"
         android:hint="@string/sensor_location" />
 
-    <EditText
-        android:id="@+id/mac_address_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:hint="@string/mac_address" />
-
     <Button
-        android:id="@+id/button"
+        android:id="@+id/submit_add_sensor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"

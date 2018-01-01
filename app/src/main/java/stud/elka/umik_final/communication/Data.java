@@ -17,24 +17,27 @@ public class Data implements Serializable{
     public static final int LARGE_LEAK_CODE = 300;
     public static final int BIG_LEAK_CODE = 400;
 
-    private Date timestamp;
+    private long id;
+    private long sensorID;
     private int code;
-
-    /**
-     * Konstruktor domyślny klasy, ustawia dane na 0
-     */
-    public Data() {
-        timestamp = new Date();
-        code = 0;
-    }
+    private Date timestamp;
 
     /**
      * Konstruktor klasy wykorzystujący otrzymaną wiadomość z urządzenia
      * @param cmd wiadomość otrzymana z urządzenia
      */
-    public Data(String cmd) {
+    public Data(long sensorID, String cmd) {
         timestamp = new Date();
         code = Integer.valueOf(cmd);
+        this.sensorID = sensorID;
+    }
+
+    public long getID() {
+        return id;
+    }
+
+    public long getSensorID() {
+        return sensorID;
     }
 
     /**
@@ -64,6 +67,7 @@ public class Data implements Serializable{
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder(getTimestampString() + " ");
+        stringBuilder.append(sensorID + ". ");
         if(code == SMALL_LEAK_CODE) {
             stringBuilder.append("SMALL LEAK");
         } else if (code == LARGE_LEAK_CODE) {
