@@ -1,13 +1,14 @@
 package stud.elka.umik_final.communication;
 
-import android.content.Intent;
+import android.util.Log;
 
 import java.io.Serializable;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Klasa reprezentująca dane przesyłane pomiędzy urządzeniem a telefonem
+ * Klasa reprezentująca dane o wycieku przesyłane pomiędzy urządzeniem a telefonem.
  * @author mateuszwojciechowski
  */
 
@@ -16,6 +17,9 @@ public class Data implements Serializable{
     public static final int SMALL_LEAK_CODE = 200;
     public static final int LARGE_LEAK_CODE = 300;
     public static final int BIG_LEAK_CODE = 400;
+
+    private static final String TAG = "Data";
+    private static final String DATE_FORMAT = "yyyy.MM.dd HH:mm:ss.SSS";
 
     private long id;
     private long sensorID;
@@ -30,6 +34,18 @@ public class Data implements Serializable{
         timestamp = new Date();
         code = Integer.valueOf(cmd);
         this.sensorID = sensorID;
+    }
+
+    public Data(long id, long sensorID, int code, String timestamp) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        try {
+            this.timestamp = dateFormat.parse(timestamp);
+        } catch (ParseException pe) {
+            Log.e(TAG, "Parsing date failed! Date as string: " + timestamp + ". Exception", pe);
+        }
+        this.id = id;
+        this.sensorID = sensorID;
+        this.code = code;
     }
 
     public long getID() {
@@ -61,7 +77,7 @@ public class Data implements Serializable{
      * @return czas zdarzenia
      */
     public String getTimestampString() {
-        return new SimpleDateFormat("yyyy.MM.dd HH:mm:ss.SSS ").format(timestamp);
+        return new SimpleDateFormat(DATE_FORMAT).format(timestamp);
     }
 
     @Override

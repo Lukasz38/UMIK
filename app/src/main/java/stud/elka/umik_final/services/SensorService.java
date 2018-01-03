@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -15,6 +16,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import stud.elka.umik_final.communication.RemoteDevice;
+import stud.elka.umik_final.db.DatabaseHelper;
 import stud.elka.umik_final.entities.Sensor;
 
 public class SensorService extends Service {
@@ -56,14 +58,20 @@ public class SensorService extends Service {
     public void addSensors()
     {
         //TODO add multiple sensors
-        String macAddress = "88:4A:EA:8B:8B:CD";
+        String macAddress = "04:A3:16:A7:0F:6C";
 
         BluetoothManager mBluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
         if(mBluetoothManager.getAdapter() != null) {
-            Log.d(TAG, "Adding remote device...");
-            RemoteDevice mRemoteDevice = new RemoteDevice(getApplicationContext(), mBluetoothManager, macAddress);
-            remoteDevices.add(mRemoteDevice);
-            Log.d(TAG, "Sensor added.");
+            DatabaseHelper dbHelper = new DatabaseHelper(getApplicationContext());
+            List<Sensor> sensors = dbHelper.getAllSensors();
+            dbHelper.close();
+            Log.d(TAG, "Adding remote devices...");
+            for(Sensor sensor : sensors) {
+                RemoteDevice mRemoteDevice = new RemoteDevice(getApplicationContext(), mBluetoothManager, sensor.getMacAddress());
+                remoteDevices.add(mRemoteDevice);
+                Log.d(TAG, "Remote device added: " + sensor.getMacAddress());
+            }
+
         } else {
             Log.d(TAG, "No bluetooth adapter!");
         }
@@ -74,7 +82,9 @@ public class SensorService extends Service {
         Log.d(TAG, "Connect sensors, remoteDevices number: " + remoteDevices.size());
         for(RemoteDevice mRemoteDevice : remoteDevices) {
             mRemoteDevice.connect();
-            Log.d(TAG, "Sensor connected.");
+            if(mRemoteDevice.isConnected()) {
+                Log.d(TAG, "Sensor connected.");
+            }
         }
     }
 
@@ -85,9 +95,13 @@ public class SensorService extends Service {
         }
     }
 
-    public RemoteDevice getRemoteDevice(int id) {
-        //TODO
-        return remoteDevices.get(0);
+    public RemoteDevice getRemoteDevice(String mac) {
+        for(RemoteDevice rd : remoteDevices) {
+            if(rd.getMacAddress().equals(mac)) {
+                return rd;
+            }
+        }
+        return null;
     }
 
     public List<RemoteDevice> getRemoteDevices() {
@@ -109,13 +123,19 @@ public class SensorService extends Service {
         timer = new Timer();
         initializeTimerTask();
 
-        timer.schedule(timerTask, 1000, 2000);
+        timer.schedule(timerTask, 1000, 5000);
     }
 
     public void initializeTimerTask() {
         timerTask = new TimerTask() {
             public void run() {
                 Log.d("Timer", "I'm alive!");
+                RemoteDevice rd = remoteDevices.get(3);
+                if(!rd.isConnected()) {
+                    rd.connect();
+                    SystemClock.sleep(2000);
+                }
+                Log.d("RemoteDevice", "Connected: " + rd.isConnected());
             }
         };
     }
@@ -132,5 +152,4 @@ public class SensorService extends Service {
             return SensorService.this;
         }
     }
-
 }

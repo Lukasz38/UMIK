@@ -24,7 +24,6 @@ public class BluetoothDataReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "onReceive");
 
-
         Data data = (Data) intent.getSerializableExtra("data");
         if(data == null) {
             Log.d(TAG, "Received data is null.");

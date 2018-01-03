@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -61,6 +62,14 @@ public class SensorList extends Fragment {
                 android.R.layout.simple_list_item_1, sensors);
 
         ListView listView = (ListView) getActivity().findViewById(R.id.sensor_list);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                final Sensor sensor = (Sensor) adapterView.getItemAtPosition(i);
+                MainActivity.setSelectedSensor(sensor);
+                //TODO switch to stats view
+            }
+        });
         TextView emptyView = (TextView) getActivity().findViewById(R.id.empty);
         emptyView.setVisibility(View.INVISIBLE);
 
@@ -102,6 +111,8 @@ public class SensorList extends Fragment {
                         Toast.makeText(getActivity(), R.string.confirm_sensor_add, Toast.LENGTH_SHORT).show();
                         updateAdapter();
                         dialog.dismiss();
+                        Intent broadcastIntent = new Intent("stud.elka.umik_final.RestartSensor");
+                        getActivity().sendBroadcast(broadcastIntent);
                     }
                 });
             }
@@ -112,6 +123,8 @@ public class SensorList extends Fragment {
         DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
         sensors.clear();
         sensors.addAll(dbHelper.getAllSensors());
+        adapter.notifyDataSetChanged();
         dbHelper.close();
+        Log.d(TAG, "Adapter should be updated");
     }
 }

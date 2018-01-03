@@ -139,12 +139,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         int iColumnName= c.getColumnIndex(COLUMN_NAME);
         int iColumnLocation = c.getColumnIndex(COLUMN_LOCATION);
 
+        if(c.isAfterLast()) {
+            return null;
+        }
         c.moveToFirst();
         long sensorId = c.getLong(iColumnId);
         String mac = c.getString(iColumnMac);
         String name = c.getString(iColumnName);
         String location = c.getString(iColumnLocation);
-        Log.d(TAG, "Got sensor with id: " + sensorId);
+        Log.d(TAG, "Fetched sensor with id: " + sensorId);
 
         return new Sensor(sensorId, mac, name, location);
     }
@@ -153,7 +156,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
 
         String query = "SELECT * FROM " + TABLE_SENSOR + " " +
-                "WHERE " + COLUMN_MAC + " = " + macAddress + ";";
+                "WHERE " + COLUMN_MAC + " = '" + macAddress + "';";
 
         Cursor c = db.rawQuery(query, null);
 
@@ -168,7 +171,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String name = c.getString(iColumnName);
         String location = c.getString(iColumnLocation);
 
-        Log.d(TAG, "Got sensor with mac: " + mac);
+        Log.d(TAG, "Fetched sensor with mac: " + mac);
         return new Sensor(id, mac, name, location);
     }
 
@@ -192,7 +195,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             sensors.add(new Sensor(id, mac, name, location));
         }
 
-        Log.d(TAG, "Got all sensors. Length: " + sensors.size());
+        Log.d(TAG, "Fetched all sensors. Length: " + sensors.size());
         return sensors;
+    }
+
+    public List<Data> getAllData(long sensorId) {
+        SQLiteDatabase db = getReadableDatabase();
+        List<Data> dataList = new ArrayList<>();
+
+        String query = "SELECT * FROM " + TABLE_DATA + " d " +
+                "INNER JOIN " + TABLE_SENSOR_DATA + " ds " +
+                "ON d." + COLUMN_ID + " = " + KEY_DATA + " " +
+                "WHERE " + KEY_SENSOR + " = " + sensorId + ";";
+        Cursor c = db.rawQuery(query, null);
+
+        int iColumnId = c.getColumnIndex(COLUMN_ID);
+        int iColumnCode = c.getColumnIndex(COLUMN_CODE);
+        int iColumnDate = c.getColumnIndex(COLUMN_RECEIVAL_TIME);
+        int iColumnSensorId = c.getColumnIndex(KEY_SENSOR);
+
+        for(c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+            long id = c.getLong(iColumnId);
+            int code = c.getInt(iColumnCode);
+            String date = c.getString(iColumnDate);
+            dataList.add(new Data(id, sensorId, code, date));
+        }
+
+        Log.d(TAG, "Fetched all data. Length: " + dataList.size());
+        return dataList;
     }
 }

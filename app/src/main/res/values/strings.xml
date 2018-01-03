@@ -21,4 +21,15 @@
     <string name="mac_address">MAC address</string>
 
     <string name="confirm_sensor_add">Sensor added.</string>
+    <string name="frequency_text">Frequency</string>
+    <string name="data_send_freq">Refresh rate</string>
+    <string name="no_sensor_toast">No sensors. Please add sensor first.</string>
+    <string name="navigation_header_main">Leak detector</string>
+    <string name="small_leak_range">Small leak range</string>
+    <string name="large_leak_range">Large leak range</string>
+
+    <string name="send_freq_button">Send</string>
+    <string name="send_leak_range_button">Send</string>
+    <string name="reset_button">Reset</string>
+    <string name="get_info_button">Get current config</string>
 </resources>
