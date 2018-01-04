@@ -13,7 +13,7 @@ import stud.elka.umik_final.R;
 import stud.elka.umik_final.communication.Data;
 
 /**
- * Created by Łukasz on 19.12.2017.
+ * Handles the data received from BLE device.
  */
 
 public class BluetoothDataReceiver extends BroadcastReceiver {
@@ -23,24 +23,28 @@ public class BluetoothDataReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "onReceive");
-
+    
         Data data = (Data) intent.getSerializableExtra("data");
-        if(data == null) {
-            Log.d(TAG, "Received data is null.");
-            return;
-        }
-        Log.d(TAG, "Data received: " + data);
-
-        NotificationCompat.Builder mBuilder =
+        if(data != null) {
+            Log.d(TAG, "Data received: " + data);
+            
+            NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
                         .setSmallIcon(R.drawable.ic_electronics)
-                        .setContentTitle(context.getText(R.string.notification_title))
+                        .setContentTitle(data.getName() + "[" + data.getLocation() + "]");
                         .setContentText(data + "");
-        NotificationManager mNotificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        int mNotificationID = 1;
-        mNotificationManager.notify(mNotificationID, mBuilder.build());
-        Log.d(TAG, "Notification should have shown");
+            NotificationManager mNotificationManager =
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            
+            int mNotificationID = data.getSensorId();
+            mNotificationManager.notify(mNotificationID, mBuilder.build());
+            Log.d(TAG, "Notification should have shown");
+            return;
+        } 
+        
+        InfoData infoData = (InfoData) intent.getSerializableExtra("data");
+        if(infoData != null) {
+            //TODO show toast
+        }
     }
 }
