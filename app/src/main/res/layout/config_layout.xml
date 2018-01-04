@@ -34,7 +34,7 @@
                 android:text="@string/frequency_text"/>
 
             <EditText
-                android:id="@+id/config_value"
+                android:id="@+id/freq_edit"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="2"
@@ -46,7 +46,7 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/send_button"
+        android:id="@+id/send_freq_button"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_weight="1"
@@ -84,7 +84,7 @@
                 android:text="@string/small_leak_range"/>
 
             <EditText
-                android:id="@+id/small_leak"
+                android:id="@+id/small_leak_edit"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="3"
@@ -101,7 +101,7 @@
                 android:text="@string/large_leak_range"/>
 
             <EditText
-                android:id="@+id/large_leak"
+                android:id="@+id/large_leak_edit"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="3"
@@ -112,7 +112,7 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/leak_range_button"
+        android:id="@+id/send_leak_range_button"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_weight="1"
@@ -137,7 +137,7 @@
             android:text="@string/reset_button" />
 
         <Button
-            android:id="@+id/get"
+            android:id="@+id/get_info_button"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:layout_weight="1"
