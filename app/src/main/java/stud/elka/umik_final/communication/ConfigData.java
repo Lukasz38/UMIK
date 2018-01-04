@@ -1,29 +1,33 @@
 package stud.elka.umik_final.communication;
 
 /**
- * Created by Łukasz on 25.12.2017.
+ * Klasa umożliwiająca tworzenie wiadomości wysyłanych do urządzenia BLE.
  */
 
-public class ConfigData {
+public abstract class ConfigData {
 
-    private static final String METHOD_PUT = "PUT";
-    private static final String FREQ_CODE = "600";
+    public static final String METHOD_PUT = "PUT";
+    public static final String METHOD_GET = "GET";
 
-    private int value;
+    public static final String INFO_CODE = "100";
+    public static final String FREQ_CODE = "600";
+    public static final String LEAK_RANGE_CODE = "700";
+    public static final String RESET_CODE = "900";
 
-    public ConfigData(int value) {
-        this.value = value;
-    }
-
-    public String createMessage() {
-        return METHOD_PUT + ":" + FREQ_CODE + ":" + value;
-    }
-
-    public int getValue() {
-        return value;
-    }
-
-    public void setValue(int value) {
-        this.value = value;
+    /**
+     * Metoda umożliwiająca tworzenie wiadomości wysyłanych do urządzenia BLE.
+     * @param method nazwa metody
+     * @param code kod wartości
+     * @param values wartości do ustawienia
+     * @return
+     */
+    public static String createMessage(String method, String code, String[] values) {
+        StringBuilder stringBuilder = new StringBuilder(method + ":" + code);
+        if(values != null) {
+            for (String s : values) {
+                stringBuilder.append(s);
+            }
+        }
+        return stringBuilder.toString();
     }
 }

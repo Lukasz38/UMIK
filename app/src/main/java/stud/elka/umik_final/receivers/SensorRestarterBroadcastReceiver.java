@@ -7,6 +7,9 @@ import android.util.Log;
 
 import stud.elka.umik_final.services.SensorService;
 
+/**
+ * Restarts SensorService when it stops.
+ */
 public class SensorRestarterBroadcastReceiver extends BroadcastReceiver {
 
     private static final String TAG = "SensorRestarter";
@@ -17,5 +20,4 @@ public class SensorRestarterBroadcastReceiver extends BroadcastReceiver {
         context.startService(new Intent(context, SensorService.class));
         Log.d(TAG, "SensorService restarted.");
     }
-
 }

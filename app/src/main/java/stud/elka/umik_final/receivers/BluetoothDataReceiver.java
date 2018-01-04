@@ -6,14 +6,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.List;
 
 import stud.elka.umik_final.R;
 import stud.elka.umik_final.communication.Data;
+import stud.elka.umik_final.communication.InfoData;
+import stud.elka.umik_final.db.DatabaseHelper;
+import stud.elka.umik_final.entities.Sensor;
 
 /**
- * Created by Łukasz on 19.12.2017.
+ * Handles the data received from BLE device.
  */
 
 public class BluetoothDataReceiver extends BroadcastReceiver {
@@ -23,25 +27,32 @@ public class BluetoothDataReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "onReceive");
-
-
+    
         Data data = (Data) intent.getSerializableExtra("data");
-        if(data == null) {
-            Log.d(TAG, "Received data is null.");
-            return;
-        }
-        Log.d(TAG, "Data received: " + data);
+        if(data != null) {
+            Log.d(TAG, "Data received: " + data);
 
-        NotificationCompat.Builder mBuilder =
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            Sensor sensor = dbHelper.getSensor(data.getSensorID());
+            dbHelper.close();
+
+            NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
                         .setSmallIcon(R.drawable.ic_electronics)
-                        .setContentTitle(context.getText(R.string.notification_title))
+                        .setContentTitle(sensor.getName() + "[" + sensor.getLocation() + "]")
                         .setContentText(data + "");
-        NotificationManager mNotificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        int mNotificationID = 1;
-        mNotificationManager.notify(mNotificationID, mBuilder.build());
-        Log.d(TAG, "Notification should have shown");
+            NotificationManager mNotificationManager =
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            
+            int mNotificationID = (int) data.getSensorID();
+            mNotificationManager.notify(mNotificationID, mBuilder.build());
+            Log.d(TAG, "Notification should have shown");
+            return;
+        } 
+        
+        InfoData infoData = (InfoData) intent.getSerializableExtra("data");
+        if(infoData != null) {
+            Toast.makeText(context, "INFO: " + infoData.toString(), Toast.LENGTH_LONG);
+        }
     }
 }

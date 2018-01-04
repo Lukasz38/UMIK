@@ -13,13 +13,13 @@ import android.content.Intent;
 import android.os.SystemClock;
 import android.util.Log;
 
-import java.util.LinkedList;
 import java.util.UUID;
 
-import stud.elka.umik_final.receivers.BluetoothDataReceiver;
+import stud.elka.umik_final.db.DatabaseHelper;
 
 /**
- * Klasa reprezentująca urządzenie zdalne, umożliwiająca połączenie i rozłączenie
+ * Klasa reprezentująca urządzenie zdalne, umożliwia połączenie i rozłączenie,
+ * a także odbieranie i wysyłanie danych.
  * @author mateuszwojciechowski
  * @version 1
  */
@@ -30,17 +30,16 @@ public class RemoteDevice {
     private static final UUID CHARACTERISTIC_UUID = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
 
     // Adres modułu z inżynierki
-    private static final String DEVICE_ADDRESS = "88:4A:EA:8B:8B:CD";
+    public static final String DEFAULT_DEVICE_ADDRESS = "04:A3:16:A7:0F:6C";
+    
     private static final String TAG = "RemoteDevice";
 
-    private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothDevice mBluetoothDevice;
     private BluetoothGatt mBluetoothGatt;
     private BluetoothGattService mBluetoothGattService;
     private BluetoothGattCharacteristic mBluetoothGattCharacteristic;
     private Context mContext;
-    private LinkedList<Data> data;
     private boolean connected = false;
 
     private BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
@@ -62,7 +61,6 @@ public class RemoteDevice {
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            Log.d(TAG, "onServicesDiscovered");
             mBluetoothGattService = gatt.getService(SERVICE_UUID);
             mBluetoothGattCharacteristic = mBluetoothGattService.getCharacteristic(CHARACTERISTIC_UUID);
             mBluetoothGatt.setCharacteristicNotification(mBluetoothGattCharacteristic, true);
@@ -71,52 +69,63 @@ public class RemoteDevice {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicRead(gatt, characteristic, status);
-            Log.d(TAG, "onCharacteristicRead");
         }
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
-            Log.d(TAG, "onCharacteristicWrite");
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
-            Log.d(TAG, "onCharacteristicChanged");
+            Log.d(TAG, "Received characteristic: " + characteristic.getStringValue(0));
 
-            data.add(new Data(characteristic.getStringValue(0)));
-            if (data.size() >= 100) {
-                data.removeFirst();
+            Object obj = parseMessage(characteristic.getStringValue(0));
+            if(obj == null) {
+                return;
             }
 
-            Intent dataIntent = new Intent("stud.elka.umik_final.PushNotification");
-            dataIntent.putExtra("data", getLastData());
-            mContext.sendBroadcast(dataIntent);
+            if(obj instanceof Data) {
+                Data data = (Data) obj;
+                DatabaseHelper dbHelper = new DatabaseHelper(mContext);
+                dbHelper.addData(data);
+                Log.d(TAG, "Data added to DB: " + data);
+                dbHelper.close();
+
+                Intent dataIntent = new Intent("stud.elka.umik_final.PushNotification");
+                dataIntent.putExtra("data", data);
+                mContext.sendBroadcast(dataIntent);
+            }
+            else if(obj instanceof InfoData) {
+                InfoData infoData = (InfoData) obj;
+
+                Intent infoDataIntent = new Intent("stud.elka.umik_final.PushNotification");
+                infoDataIntent.putExtra("infoData", infoData);
+                mContext.sendBroadcast(infoDataIntent);
+            }
         }
     };
 
     /**
-     * Konstruktor klasy RemoteDevice
+     * Konstruktor klasy RemoteDevice.
      * @param context kontekst aplikacji
      * @param manager instancja klasy BluetoothManager
      * @param macAddress adres MAC urządzenia BLE
      */
     public RemoteDevice(Context context, BluetoothManager manager, String macAddress) {
-        mBluetoothManager = manager;
         mBluetoothAdapter = manager.getAdapter();
         mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(macAddress);
         mContext = context;
-        data = new LinkedList<>();
     }
 
     /**
-     * Funkcja nawiązująca połączenie z urządzeniem zdalnym
+     * Funkcja nawiązująca połączenie z urządzeniem zdalnym.
      */
     public void connect() {
         if (mBluetoothGatt == null) {
             mBluetoothGatt = mBluetoothDevice.connectGatt(mContext, true, gattCallback);
-            SystemClock.sleep(2000);
+            //SystemClock.sleep(2000);
             if(connected) {
                 Log.d(TAG, "Device connected: " + mBluetoothDevice.getAddress());
             } else {
@@ -126,7 +135,7 @@ public class RemoteDevice {
     }
 
     /**
-     * Funkcja rozłączająca połączenie z urządzeniem zdalnym
+     * Funkcja rozłączająca połączenie z urządzeniem zdalnym.
      */
     public void disconnect() {
         if (mBluetoothGatt != null) {
@@ -135,28 +144,50 @@ public class RemoteDevice {
         }
     }
 
-    public boolean sendConfig(ConfigData data) {
+    /**
+     * Metoda wysyłająca wiadomość do urządzenia BLE.
+     * @param message wiadomość do wysłania
+     * @return true - jeśli wysłano wiadomość
+     */
+    public boolean sendConfig(String message) {
         if(connected) {
-            mBluetoothGattCharacteristic.setValue(data.createMessage());
+            mBluetoothGattCharacteristic.setValue(message);
             return mBluetoothGatt.writeCharacteristic(mBluetoothGattCharacteristic);
         } else {
             return false;
         }
     }
 
-    /**
-     * Funkcja zwracająca listę otrzymanych odczytów z czujnika
-     * @return lista odczytów
-     */
-    public LinkedList<Data> getData() {
-        return data;
+    public String getMacAddress() {
+        return mBluetoothDevice.getAddress();
     }
 
-    /**
-     * Funkcja zwracająca ostatni otrzymany odczyt z czujnika
-     * @return ostatni odczyt
-     */
-    public Data getLastData() {
-        return data.getLast();
+    public boolean isConnected() {
+        return connected;
+    }
+
+    /** Parses given message and returns Data or InfoData object depending on the message. */
+    private Object parseMessage(String message) {
+        String[] splittedMessage = message.split(":");
+        String messageType = splittedMessage[0];
+        DatabaseHelper dbHelper = new DatabaseHelper(mContext);
+        long sensorId = 0;
+
+        switch (messageType) {
+            case "LEAK":
+                sensorId = dbHelper.getSensor(getMacAddress()).getId();
+                dbHelper.close();
+                return new Data(sensorId, splittedMessage[1]);
+            case "INFO":
+                sensorId = dbHelper.getSensor(getMacAddress()).getId();
+                dbHelper.close();
+                int freqency = Integer.parseInt(splittedMessage[1]);
+                int smallLeakRange = Integer.parseInt(splittedMessage[2]);
+                int largeLeakRange = Integer.parseInt(splittedMessage[3]);
+                return new InfoData(sensorId, freqency, smallLeakRange, largeLeakRange);
+            default:
+                Log.d(TAG, "Unknown message type.");
+                return null;
+        }
     }
 }
