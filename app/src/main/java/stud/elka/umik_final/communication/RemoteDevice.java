@@ -30,7 +30,8 @@ public class RemoteDevice {
     private static final UUID CHARACTERISTIC_UUID = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
 
     // Adres modułu z inżynierki
-    private static final String DEFAULT_DEVICE_ADDRESS = "04:A3:16:A7:0F:6C";
+    public static final String DEFAULT_DEVICE_ADDRESS = "04:A3:16:A7:0F:6C";
+    
     private static final String TAG = "RemoteDevice";
 
     private BluetoothAdapter mBluetoothAdapter;
