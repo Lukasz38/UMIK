@@ -22,7 +22,8 @@
         android:layout_weight="1"
         android:ems="10"
         android:inputType="textPersonName"
-        android:hint="@string/mac_address" />
+        android:hint="@string/mac_address"
+        android:text="04:A3:16:A7:0F:6C"/>
 
     <EditText
         android:id="@+id/name_text"

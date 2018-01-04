@@ -54,7 +54,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             COLUMN_LOCATION + " TEXT" +
             ");";
 
-    //TODO datetime
     private static final String CREATE_TABLE_DATA = "CREATE TABLE " + TABLE_DATA + "(" +
             COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
             COLUMN_RECEIVAL_TIME + " TEXT NOT NULL, " +

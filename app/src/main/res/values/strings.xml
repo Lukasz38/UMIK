@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">UMIK_final</string>
+    <string name="app_name">UMIK</string>
     <string name="sensor_list_activity_bar_string">Sensor list</string>
     <string name="empty_sensor_list_string">No sensors added yet</string>
     <string name="add_new_sensor_string">Add new sensor</string>
@@ -22,7 +22,7 @@
 
     <string name="confirm_sensor_add">Sensor added.</string>
     <string name="frequency_text">Frequency</string>
-    <string name="data_send_freq">Refresh rate</string>
+    <string name="data_send_freq">Frequency</string>
     <string name="no_sensor_toast">No sensors. Please add sensor first.</string>
     <string name="navigation_header_main">Leak detector</string>
     <string name="small_leak_range">Small leak range</string>

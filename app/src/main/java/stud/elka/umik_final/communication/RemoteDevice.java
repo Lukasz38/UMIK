@@ -99,7 +99,7 @@ public class RemoteDevice {
             }
             else if(obj instanceof InfoData) {
                 InfoData infoData = (InfoData) obj;
-                //TODO push toast
+
                 Intent infoDataIntent = new Intent("stud.elka.umik_final.PushNotification");
                 infoDataIntent.putExtra("infoData", infoData);
                 mContext.sendBroadcast(infoDataIntent);
@@ -125,7 +125,7 @@ public class RemoteDevice {
     public void connect() {
         if (mBluetoothGatt == null) {
             mBluetoothGatt = mBluetoothDevice.connectGatt(mContext, true, gattCallback);
-            SystemClock.sleep(2000);
+            //SystemClock.sleep(2000);
             if(connected) {
                 Log.d(TAG, "Device connected: " + mBluetoothDevice.getAddress());
             } else {

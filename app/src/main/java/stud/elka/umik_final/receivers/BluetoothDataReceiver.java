@@ -6,11 +6,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.List;
 
 import stud.elka.umik_final.R;
 import stud.elka.umik_final.communication.Data;
+import stud.elka.umik_final.communication.InfoData;
+import stud.elka.umik_final.db.DatabaseHelper;
+import stud.elka.umik_final.entities.Sensor;
 
 /**
  * Handles the data received from BLE device.
@@ -27,16 +31,20 @@ public class BluetoothDataReceiver extends BroadcastReceiver {
         Data data = (Data) intent.getSerializableExtra("data");
         if(data != null) {
             Log.d(TAG, "Data received: " + data);
-            
+
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            Sensor sensor = dbHelper.getSensor(data.getSensorID());
+            dbHelper.close();
+
             NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
                         .setSmallIcon(R.drawable.ic_electronics)
-                        .setContentTitle(data.getName() + "[" + data.getLocation() + "]");
+                        .setContentTitle(sensor.getName() + "[" + sensor.getLocation() + "]")
                         .setContentText(data + "");
             NotificationManager mNotificationManager =
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             
-            int mNotificationID = data.getSensorId();
+            int mNotificationID = (int) data.getSensorID();
             mNotificationManager.notify(mNotificationID, mBuilder.build());
             Log.d(TAG, "Notification should have shown");
             return;
@@ -44,7 +52,7 @@ public class BluetoothDataReceiver extends BroadcastReceiver {
         
         InfoData infoData = (InfoData) intent.getSerializableExtra("data");
         if(infoData != null) {
-            //TODO show toast
+            Toast.makeText(context, "INFO: " + infoData.toString(), Toast.LENGTH_LONG);
         }
     }
 }

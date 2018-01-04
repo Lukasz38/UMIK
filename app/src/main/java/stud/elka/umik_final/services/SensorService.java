@@ -128,8 +128,11 @@ public class SensorService extends Service {
         timerTask = new TimerTask() {
             public void run() {
                 RemoteDevice rd = getRemoteDevice(RemoteDevice.DEFAULT_DEVICE_ADDRESS);
+                if(rd == null) {
+                    return;
+                }
                 if(!rd.isConnected()) {
-                    rd.connect()
+                    rd.connect();
                 }
                 Log.d("Timer", "Is RD connected?: " + rd.isConnected());
             }

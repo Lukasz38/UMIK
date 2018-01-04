@@ -4,7 +4,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
@@ -18,6 +20,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import stud.elka.umik_final.communication.ConfigData;
 import stud.elka.umik_final.communication.RemoteDevice;
 import stud.elka.umik_final.entities.Sensor;
 import stud.elka.umik_final.services.SensorService;
@@ -83,8 +86,8 @@ public class ConfigFragment extends Fragment {
         @Override
         public void onClick(View view) {
             String freq = freqEditText.getText().toString();
-            String message = ConfigData.createMessage(ConfigData.MESSAGE_PUT, ConfigData.FREQ_CODE, new String[] { freq });
-            sendMessage(String message);
+            String message = ConfigData.createMessage(ConfigData.METHOD_PUT, ConfigData.FREQ_CODE, new String[] { freq });
+            sendMessage(message);
         }
     };
         
@@ -93,27 +96,61 @@ public class ConfigFragment extends Fragment {
         public void onClick(View view) {
             String smallLeakRange = smallLeakRangeEditText.getText().toString();
             String largeLeakRange = largeLeakRangeEditText.getText().toString();
-            String message = ConfigData.createMessage(ConfigData.MESSAGE_PUT, ConfigData.LEAK_RANGE_CODE , 
+            String message = ConfigData.createMessage(ConfigData.METHOD_PUT, ConfigData.LEAK_RANGE_CODE ,
                                                       new String[] { smallLeakRange, largeLeakRange });
-            sendMessage(String message);
+            sendMessage(message);
         }
     };
         
         View.OnClickListener resetButtonHandler = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            String message = ConfigData.createMessage(ConfigData.MESSAGE_PUT, ConfigData.RESET_CODE, null);
-            sendMessage(String message);
+            String message = ConfigData.createMessage(ConfigData.METHOD_PUT, ConfigData.RESET_CODE, null);
+            sendMessage(message);
         }
     };
         
         View.OnClickListener getInfoButtonHandler = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            String message = ConfigData.createMessage(ConfigData.MESSAGE_GET, ConfigData.INFO_CODE, null);
-            sendMessage(String message);
+            String message = ConfigData.createMessage(ConfigData.METHOD_GET, ConfigData.INFO_CODE, null);
+            sendMessage(message);
         }
     };
+
+    private void sendMessage(String message) {
+        if (isBound) {
+            if (sensorService.getRemoteDevices().size() == 0) {
+                Toast.makeText(getActivity(),"No remote devices!", Toast.LENGTH_SHORT).show();
+            } else {
+                RemoteDevice remoteDevice = sensorService.getRemoteDevice(
+                        MainActivity.getSelectedSensor().getMacAddress());
+                if (remoteDevice == null) {
+                    Log.e(TAG, "No remote device found.");
+                    return;
+                }
+                if (!remoteDevice.isConnected()) {
+                    remoteDevice.connect();
+                    SystemClock.sleep(150);
+                    if (!remoteDevice.isConnected()) {
+                        Log.d(TAG, "Remote device not connected");
+                        Toast.makeText(getActivity(), "Failed to connect to the device. Probably out of reach.",
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+                boolean result = remoteDevice.sendConfig(message);
+                if (result) {
+                    Toast.makeText(getActivity(), "Message sent.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getActivity(), "Failed to send a message.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        } else {
+            Log.e(TAG, "Service not bound.");
+            Toast.makeText(getActivity(), "ERROR: Service not bound.", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override

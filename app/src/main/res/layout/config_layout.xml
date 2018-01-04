@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="5dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="0px"
         android:orientation="horizontal"
-        android:layout_weight="1">
+        android:layout_weight="2">
 
         <ImageView
-            android:layout_width="match_parent"
+            android:layout_width="0px"
             android:layout_height="match_parent"
-            android:layout_weight="6"
+            android:layout_weight="1"
             android:paddingLeft="5dp"
             android:paddingRight="15dp"
             android:src="@drawable/ic_freq_wave"/>
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0px"
             android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_weight="6"
             android:orientation="vertical">
 
             <TextView
@@ -48,7 +48,7 @@
     <Button
         android:id="@+id/send_freq_button"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="0px"
         android:layout_weight="1"
         android:layout_margin="5dp"
         android:background="@color/colorPrimaryDark"
@@ -57,9 +57,9 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="0px"
         android:orientation="horizontal"
-        android:layout_weight="1">
+        android:layout_weight="4">
 
         <ImageView
             android:layout_width="match_parent"
@@ -114,7 +114,7 @@
     <Button
         android:id="@+id/send_leak_range_button"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="0px"
         android:layout_weight="1"
         android:background="@color/colorPrimaryDark"
         android:textColor="@android:color/white"
@@ -123,13 +123,13 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1">
+        android:layout_height="0px"
+        android:layout_weight="1.2">
 
         <Button
             android:id="@+id/reset_button"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@color/colorPrimaryDark"
             android:textColor="@android:color/white"
@@ -139,7 +139,7 @@
         <Button
             android:id="@+id/get_info_button"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@color/colorPrimaryDark"
             android:textColor="@android:color/white"

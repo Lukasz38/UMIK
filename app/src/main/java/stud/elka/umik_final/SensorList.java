@@ -4,6 +4,8 @@ import android.bluetooth.BluetoothManager;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v4.app.Fragment;
@@ -32,7 +34,7 @@ import stud.elka.umik_final.communication.RemoteDevice;
 import stud.elka.umik_final.db.DatabaseHelper;
 import stud.elka.umik_final.entities.Sensor;
 
-public class SensorList extends Fragment {
+public class SensorList extends ListFragment {
 
     private static final String TAG = "SensorList";
 
@@ -61,7 +63,8 @@ public class SensorList extends Fragment {
         adapter = new ArrayAdapter<>(getActivity(),
                 android.R.layout.simple_list_item_1, sensors);
 
-        ListView listView = (ListView) getActivity().findViewById(R.id.sensor_list);
+        ListView listView = getListView();
+        listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -69,26 +72,11 @@ public class SensorList extends Fragment {
                 MainActivity.setSelectedSensor(sensor);
                 
                 Fragment fragment = new ConfigFragment();
-                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
                 fragmentTransaction.replace(R.id.content_main, fragment);
                 fragmentTransaction.commit();
             }
         });
-        
-        //TODO check
-        TextView emptyView = (TextView) getActivity().findViewById(R.id.empty);
-        emptyView.setVisibility(View.INVISIBLE);
-        
-        listView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
-        /*
-        if (sensors.size() == 0) {
-            Log.d(TAG, "Sensor list length: " + sensors.size());
-            listView.setEmptyView(emptyView);
-        } else {
-            listView.setAdapter(adapter);
-            adapter.notifyDataSetChanged();
-        }*/
 
         //Floating button
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);

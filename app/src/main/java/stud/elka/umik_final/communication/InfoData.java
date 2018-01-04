@@ -51,4 +51,9 @@ public class InfoData implements Serializable {
     public void setLargeLeakRange(int largeLeakRange) {
         this.largeLeakRange = largeLeakRange;
     }
+
+    @Override
+    public String toString() {
+        return "FREQ: " + freqency + " , SLR: " + smallLeakRange + ", LLR: " + largeLeakRange;
+    }
 }
