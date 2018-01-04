@@ -67,19 +67,28 @@ public class SensorList extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 final Sensor sensor = (Sensor) adapterView.getItemAtPosition(i);
                 MainActivity.setSelectedSensor(sensor);
-                //TODO switch to stats view
+                
+                Fragment fragment = new ConfigFragment();
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.content_main, fragment);
+                fragmentTransaction.commit();
             }
         });
+        
+        //TODO check
         TextView emptyView = (TextView) getActivity().findViewById(R.id.empty);
         emptyView.setVisibility(View.INVISIBLE);
-
+        
+        listView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+        /*
         if (sensors.size() == 0) {
             Log.d(TAG, "Sensor list length: " + sensors.size());
             listView.setEmptyView(emptyView);
         } else {
             listView.setAdapter(adapter);
             adapter.notifyDataSetChanged();
-        }
+        }*/
 
         //Floating button
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
