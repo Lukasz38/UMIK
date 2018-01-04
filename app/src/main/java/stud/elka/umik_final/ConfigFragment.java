@@ -23,18 +23,24 @@ import stud.elka.umik_final.entities.Sensor;
 import stud.elka.umik_final.services.SensorService;
 
 /**
- * Created by Łukasz on 26.12.2017.
+ * View that enables configuration of the remote device.
  */
 
 public class ConfigFragment extends Fragment {
 
     private static final String TAG = "ConfigFragment";
-
-    private EditText mEditText;
-    private Button mButton;
+    
     private SensorService sensorService;
     private boolean isBound = false;
 
+    private EditText freqEditText;
+    private Button sendFreqButton;
+    private EditText smallLeakRangeEditText;
+    private EditText largeLeakRangeEditText;
+    private Button sendLeakRangeButton;
+    private Button resetButton;
+    private Button getInfoButton;
+    
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -44,6 +50,7 @@ public class ConfigFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        
         Sensor sensor = MainActivity.getSelectedSensor();
         if (sensor == null) {
             Toast.makeText(getActivity(), R.string.no_sensor_toast, Toast.LENGTH_LONG);
@@ -55,150 +62,58 @@ public class ConfigFragment extends Fragment {
             getActivity().setTitle(MainActivity.getSelectedSensor().getName());
         }
 
-        mEditText = (EditText) getActivity().findViewById(R.id.config_value);
-        mButton = (Button) getActivity().findViewById(R.id.send_button);
+        freqEditText = (EditText) getActivity().findViewById(R.id.freq_edit);
+        sendFreqButton = (Button) getActivity().findViewById(R.id.send_freq_button);
+        smallLeakRangeEditText = (EditText) getActivity().findViewById(R.id.small_leak_edit);
+        largeLeakRangeEditText = (EditText) getActivity().findViewById(R.id.large_leak_edit);
+        sendLeakRangeButton = (Button) getActivity().findViewById(R.id.send_leak_range_button);
+        resetButton = (Button) getActivity().findViewById(R.id.reset_button);
+        getInfoButton = (Button) getActivity().findViewById(R.id.get_info_button);
 
         getActivity().bindService(new Intent(getActivity(), SensorService.class),
                 serviceConnection, Context.BIND_AUTO_CREATE);
 
-        mButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (isBound) {
-                    if (sensorService.getRemoteDevices().size() == 0) {
-                        Toast.makeText(getActivity(),
-                                "No remote devices!", Toast.LENGTH_SHORT).show();
-
-                    } else {
-                        RemoteDevice remoteDevice = sensorService.getRemoteDevice(
-                                MainActivity.getSelectedSensor().getMacAddress());
-                        Log.d(TAG, "remoteDevice mac: " + remoteDevice.getMacAddress());
-                        if (remoteDevice == null) {
-                            Log.e(TAG, "No remote device found.");
-                            return;
-                        }
-                        if (!remoteDevice.isConnected()) {
-                            remoteDevice.connect();
-                            SystemClock.sleep(2000);
-                            if (!remoteDevice.isConnected()) {
-                                Log.d(TAG, "Remote device not connected");
-                                Toast.makeText(getActivity(), "Remote device not connected. Probably out of reach.",
-                                        Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                        }
-
-                        //TODO
-                        boolean result = remoteDevice.sendConfig("PUT:600:200");
-
-                        // boolean result = remoteDevice.sendConfig("GET:100");
-                        //new ConfigData(Integer.valueOf(mEditText.getText().toString())));
-                        String message = "Data sent with result: " + result;
-                        Toast.makeText(getActivity(),
-                                message, Toast.LENGTH_SHORT).show();
-
-                    }
-                } else {
-                    String message = "Service not bound";
-                    Toast.makeText(getActivity(),
-                            message, Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        Button freqButton = (Button) getActivity().findViewById(R.id.freq);
-        Button resetButton = (Button) getActivity().findViewById(R.id.reset);
-
-        freqButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (isBound) {
-                    if (sensorService.getRemoteDevices().size() == 0) {
-                        Toast.makeText(getActivity(),
-                                "No remote devices!", Toast.LENGTH_SHORT).show();
-
-                    } else {
-                        RemoteDevice remoteDevice = sensorService.getRemoteDevice(
-                                MainActivity.getSelectedSensor().getMacAddress());
-                        Log.d(TAG, "remoteDevice mac: " + remoteDevice.getMacAddress());
-                        if (remoteDevice == null) {
-                            Log.e(TAG, "No remote device found.");
-                            return;
-                        }
-                        if (!remoteDevice.isConnected()) {
-                            remoteDevice.connect();
-                            SystemClock.sleep(2000);
-                            if (!remoteDevice.isConnected()) {
-                                Log.d(TAG, "Remote device not connected");
-                                Toast.makeText(getActivity(), "Remote device not connected. Probably out of reach.",
-                                        Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                        }
-
-                        //TODO
-                        boolean result = remoteDevice.sendConfig("GET:100");
-                        //new ConfigData(Integer.valueOf(mEditText.getText().toString())));
-                        String message = "Data sent with result: " + result;
-                        Toast.makeText(getActivity(),
-                                message, Toast.LENGTH_SHORT).show();
-
-                    }
-                } else {
-                    String message = "Service not bound";
-                    Toast.makeText(getActivity(),
-                            message, Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        resetButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (isBound) {
-                    if (sensorService.getRemoteDevices().size() == 0) {
-                        Toast.makeText(getActivity(),
-                                "No remote devices!", Toast.LENGTH_SHORT).show();
-
-                    } else {
-                        RemoteDevice remoteDevice = sensorService.getRemoteDevice(
-                                MainActivity.getSelectedSensor().getMacAddress());
-                        Log.d(TAG, "remoteDevice mac: " + remoteDevice.getMacAddress());
-                        if (remoteDevice == null) {
-                            Log.e(TAG, "No remote device found.");
-                            return;
-                        }
-                        if (!remoteDevice.isConnected()) {
-                            remoteDevice.connect();
-                            SystemClock.sleep(2000);
-                            if (!remoteDevice.isConnected()) {
-                                Log.d(TAG, "Remote device not connected");
-                                Toast.makeText(getActivity(), "Remote device not connected. Probably out of reach.",
-                                        Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                        }
-
-                        //TODO
-                        boolean result = remoteDevice.sendConfig("PUT:900");
-                        //new ConfigData(Integer.valueOf(mEditText.getText().toString())));
-                        String message = "Data sent with result: " + result;
-                        Toast.makeText(getActivity(),
-                                message, Toast.LENGTH_SHORT).show();
-
-                    }
-                } else {
-                    String message = "Service not bound";
-                    Toast.makeText(getActivity(),
-                            message, Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+        sendFreqButton.setOnClickListener(sendFreqButtonHandler);
+        sendLeakRangeButton.setOnClickListener(sendLeakRangeButtonHandler);
+        resetButton.setOnClickListener(resetButtonHandler);
+        getInfoButton.setOnClickListener(getInfoButtonHandler);
     }
 
+    View.OnClickListener sendFreqButtonHandler = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            String freq = freqEditText.getText().toString();
+            String message = ConfigData.createMessage(ConfigData.MESSAGE_PUT, ConfigData.FREQ_CODE, new String[] { freq });
+            sendMessage(String message);
+        }
+    };
+        
+        View.OnClickListener sendLeakRangeButtonHandler = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            String smallLeakRange = smallLeakRangeEditText.getText().toString();
+            String largeLeakRange = largeLeakRangeEditText.getText().toString();
+            String message = ConfigData.createMessage(ConfigData.MESSAGE_PUT, ConfigData.LEAK_RANGE_CODE , 
+                                                      new String[] { smallLeakRange, largeLeakRange });
+            sendMessage(String message);
+        }
+    };
+        
+        View.OnClickListener resetButtonHandler = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            String message = ConfigData.createMessage(ConfigData.MESSAGE_PUT, ConfigData.RESET_CODE, null);
+            sendMessage(String message);
+        }
+    };
+        
+        View.OnClickListener getInfoButtonHandler = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            String message = ConfigData.createMessage(ConfigData.MESSAGE_GET, ConfigData.INFO_CODE, null);
+            sendMessage(String message);
+        }
+    };
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
