@@ -52,6 +52,20 @@ public class BluetoothDataReceiver extends BroadcastReceiver {
         
         InfoData infoData = (InfoData) intent.getSerializableExtra("data");
         if(infoData != null) {
+            //TODO change
+            Log.d(TAG, "InfoData received: " + infoData);
+
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(context)
+                            .setSmallIcon(R.drawable.ic_electronics)
+                            .setContentTitle("INFO")
+                            .setContentText(infoData + "");
+            NotificationManager mNotificationManager =
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+            int mNotificationID = 10000;
+            mNotificationManager.notify(mNotificationID, mBuilder.build());
+            Log.d(TAG, "Notification should have shown");
             Toast.makeText(context, "INFO: " + infoData.toString(), Toast.LENGTH_LONG);
         }
     }
