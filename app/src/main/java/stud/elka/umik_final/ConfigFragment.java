@@ -87,6 +87,7 @@ public class ConfigFragment extends Fragment {
         public void onClick(View view) {
             String freq = freqEditText.getText().toString();
             String message = ConfigData.createMessage(ConfigData.METHOD_PUT, ConfigData.FREQ_CODE, new String[] { freq });
+            Log.d("blablabla", message);
             sendMessage(message);
         }
     };

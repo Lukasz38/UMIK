@@ -25,6 +25,7 @@ public abstract class ConfigData {
         StringBuilder stringBuilder = new StringBuilder(method + ":" + code);
         if(values != null) {
             for (String s : values) {
+                stringBuilder.append(":");
                 stringBuilder.append(s);
             }
         }
