@@ -1,17 +1,18 @@
 package stud.elka.umik_final;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import stud.elka.umik_final.communication.ConfigData;
+import stud.elka.umik_final.communication.InfoData;
 import stud.elka.umik_final.communication.RemoteDevice;
 import stud.elka.umik_final.entities.Sensor;
 import stud.elka.umik_final.services.SensorService;
@@ -32,7 +34,7 @@ import stud.elka.umik_final.services.SensorService;
 public class ConfigFragment extends Fragment {
 
     private static final String TAG = "ConfigFragment";
-    
+
     private SensorService sensorService;
     private boolean isBound = false;
 
@@ -47,6 +49,9 @@ public class ConfigFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        getActivity().registerReceiver(infoDataReceiver,
+                new IntentFilter("stud.elka.umik_final.PushConfig"));
+        Log.d(TAG, "BroadcastReciver registered");
         return inflater.inflate(R.layout.config_layout, container, false);
     }
 
@@ -80,6 +85,13 @@ public class ConfigFragment extends Fragment {
         sendLeakRangeButton.setOnClickListener(sendLeakRangeButtonHandler);
         resetButton.setOnClickListener(resetButtonHandler);
         getInfoButton.setOnClickListener(getInfoButtonHandler);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(infoDataReceiver);
+        Log.d(TAG, "BroadcastReciver unregistered");
     }
 
     View.OnClickListener sendFreqButtonHandler = new View.OnClickListener() {
@@ -164,6 +176,21 @@ public class ConfigFragment extends Fragment {
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             isBound = false;
+        }
+    };
+
+    private BroadcastReceiver infoDataReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "onReceive");
+            InfoData infoData = (InfoData) intent.getSerializableExtra("infoData");
+            if(infoData != null) {
+                Log.d(TAG, "InfoData received: " + infoData);
+                freqEditText.setText(infoData.getFreqency() + "");
+                smallLeakRangeEditText.setText(infoData.getSmallLeakRange() + "");
+                largeLeakRangeEditText.setText(infoData.getLargeLeakRange() + "");
+                Toast.makeText(context, "Configuration received.", Toast.LENGTH_SHORT).show();
+            }
         }
     };
 }

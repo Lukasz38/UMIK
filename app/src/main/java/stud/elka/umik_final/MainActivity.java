@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import stud.elka.umik_final.communication.InfoData;
 import stud.elka.umik_final.db.DatabaseHelper;
 import stud.elka.umik_final.entities.Sensor;
 import stud.elka.umik_final.services.SensorService;

@@ -100,7 +100,7 @@ public class RemoteDevice {
             else if(obj instanceof InfoData) {
                 InfoData infoData = (InfoData) obj;
 
-                Intent infoDataIntent = new Intent("stud.elka.umik_final.PushNotification");
+                Intent infoDataIntent = new Intent("stud.elka.umik_final.PushConfig");
                 infoDataIntent.putExtra("infoData", infoData);
                 mContext.sendBroadcast(infoDataIntent);
             }

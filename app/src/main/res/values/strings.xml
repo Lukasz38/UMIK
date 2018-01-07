@@ -32,4 +32,6 @@
     <string name="send_leak_range_button">Send</string>
     <string name="reset_button">Reset</string>
     <string name="get_info_button">Get current config</string>
+    <string name="current_config_text">Current configuration</string>
+    <string name="ok_button">OK</string>
 </resources>
